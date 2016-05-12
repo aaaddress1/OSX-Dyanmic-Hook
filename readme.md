@@ -1,6 +1,6 @@
 #OSX Dynamic Function Hook
 ![](Demo.png)
-It is a simple proof of concept to hook on the memory, and it works on OSX 10.11.4 (x86_x64) well at May 12, 2015. You can include my hotpatch.h and easily to hook any function.
+It is a simple proof of concept to hook on the memory, and it works on OSX 10.11.4 (x86_x64) well until May 12, 2015. You can include my hotpatch.h and hook any function easily.
 
 #How it works?
 e.g. Hooking the `puts` function
