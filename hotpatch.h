@@ -1,7 +1,7 @@
 /**
 *   Title:  OSX Function Inject (Dynamic Hotpatch)
 *   Author: aaaddress1@gmail.com
-*   DATE:   2016/5/12
+*   DATE:   2016/5/13
 *   special thanks to aaronluo17@gmail.com, inndy.tw@gmail.com
 **/
 #include <dlfcn.h>
@@ -9,8 +9,9 @@
 #include <mach/vm_map.h>        // vm_*
 #include <mach/mach_traps.h>    // task_for_pid()
 #include <mach/mach.h>
+#define payloadSize 12
 typedef unsigned char byte;
- 
+
 int memArrWrite(byte* ptr, byte* data, size_t count)
 {
     kern_return_t err;
@@ -24,7 +25,7 @@ int memArrWrite(byte* ptr, byte* data, size_t count)
     }
     
     /* write array */
-    vm_write(port, (vm_address_t) ptr, (vm_address_t) data, sizeof(data));
+    vm_write(port, (vm_address_t) ptr, (vm_address_t) data, count);
 
     /* recovery the protect */
     err = vm_protect(port, (vm_address_t) ptr, count , FALSE, VM_PROT_READ | VM_PROT_EXECUTE);
@@ -35,7 +36,7 @@ int memArrWrite(byte* ptr, byte* data, size_t count)
     return 1;
 }
  
-bool funcInject(void* orgFunc,void * newFunc)
+bool funcHookOn(void* orgFunc,void * newFunc,void *saveData)
 {
     /** Create payload and inline hook on orgFunc **
     *   48 b8 - movabs rax,
@@ -43,8 +44,14 @@ bool funcInject(void* orgFunc,void * newFunc)
     *   ff e0 - jmp rax
     **/ 
     char c = 0;
+    memcpy( saveData, orgFunc, payloadSize );
     c += memArrWrite((byte*)orgFunc+0x00, (byte*)"\x48\xb8", sizeof(byte)*2 );
     c += memArrWrite((byte*)orgFunc+0x02, (byte*)&newFunc, sizeof(void*) );
     c += memArrWrite((byte*)orgFunc+0x0a, (byte*)"\xff\xe0", sizeof(byte)*2 );
     return c == 3;
+}
+
+bool funcHookOff(void* orgFunc,void *saveData)
+{
+    return memArrWrite((byte*)orgFunc, (byte*)saveData, payloadSize);
 }
