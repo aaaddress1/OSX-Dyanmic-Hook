@@ -7,7 +7,7 @@ e.g. Hooking the `puts` function
 
 ![](putsDisasm01.png)
 This is the disassembly result of original `puts` function.
-We want to let every thread walk to this function, and jump to another function. 
+We want to let every thread entering this function, and jump to another function. 
 
 I make a simple payload on the begin of `puts` function:
 ![](putsDisasm02.png)
