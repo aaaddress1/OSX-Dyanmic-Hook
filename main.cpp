@@ -13,23 +13,21 @@ void *data, *libHandle, *randAddr;
 int fakeRand()
 {
 	char ask = 0;
-	int choise = -1;
-Retry:
+	int choise = -1, result = -1;
 	puts("Do you want to control the random number? [y/n]");
 	scanf("%c" , &ask);
 
 	if (ask == 'n') {
-		funcHookOff( randAddr, data);
-		return rand();
+		funcHookOff( randAddr, data );
+		result = rand();
+		funcHookOn( randAddr, (void*)fakeRand, data );
 	}
-	else if (ask == 'y') {
+	else {
 		puts("What do you want?");
 		scanf("%i", &choise);
+		result = choise;
 	}
-	else 
-		goto Retry;
-
-	return choise;
+	return result;
 }
  
 int main(void)
